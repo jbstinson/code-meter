@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeMeter", "CodeMeter\CodeMeter.csproj", "{412EF1B0-B61E-41EE-846C-B76767B58C7B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeMeter.Tests", "CodeMeter.Tests\CodeMeter.Tests.csproj", "{CD16ADEE-6E80-4DA6-9524-85A22E80D02D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{412EF1B0-B61E-41EE-846C-B76767B58C7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{412EF1B0-B61E-41EE-846C-B76767B58C7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{412EF1B0-B61E-41EE-846C-B76767B58C7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{412EF1B0-B61E-41EE-846C-B76767B58C7B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD16ADEE-6E80-4DA6-9524-85A22E80D02D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD16ADEE-6E80-4DA6-9524-85A22E80D02D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD16ADEE-6E80-4DA6-9524-85A22E80D02D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD16ADEE-6E80-4DA6-9524-85A22E80D02D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
