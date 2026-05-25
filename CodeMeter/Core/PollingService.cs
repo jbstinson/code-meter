@@ -11,7 +11,7 @@ public class PollingService : IDisposable
         _timer = new Timer(OnTick, null, TimeSpan.Zero, TimeSpan.FromSeconds(intervalSeconds));
     }
 
-    public void ForceRun() => Callback().GetAwaiter().GetResult();
+    public Task ForceRunAsync() => Callback();
 
     private void OnTick(object? _) => Callback().GetAwaiter().GetResult();
 

@@ -72,9 +72,8 @@ public partial class App : Application
                 _vm.Update(daily, weekly);
                 _popup.MarkUpdated();
                 RefreshIcon(_vm.IconColor);
+                _alerts.Check(daily, weekly, settings);
             });
-
-            _alerts.Check(daily, weekly, settings);
         };
 
         var settings = _store.Load();
@@ -133,7 +132,7 @@ public partial class App : Application
         var exit     = new System.Windows.Controls.MenuItem { Header = "Exit" };
 
         settings.Click += (_, _) => OpenSettings();
-        refresh.Click  += (_, _) => _poller?.ForceRun();
+        refresh.Click  += async (_, _) => { if (_poller != null) await _poller.ForceRunAsync(); };
         exit.Click     += (_, _) => { StopPulse(); _poller?.Dispose(); _tray?.Dispose(); Shutdown(); };
 
         cm.Items.Add(settings);
