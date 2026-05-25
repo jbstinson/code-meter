@@ -38,6 +38,17 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
+        // Catch any unhandled exceptions so the app doesn't silently disappear
+        DispatcherUnhandledException += (_, ex) =>
+        {
+            MessageBox.Show(ex.Exception.ToString(), "Code Meter — Startup Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            ex.Handled = true;
+        };
+        AppDomain.CurrentDomain.UnhandledException += (_, ex) =>
+            MessageBox.Show(ex.ExceptionObject?.ToString(), "Code Meter — Fatal Error",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+
         _store = new SettingsStore(SettingsPath);
         if (!_store.Exists())
             new SettingsWindow(_store).ShowDialog();
@@ -56,6 +67,10 @@ public partial class App : Application
             TrayPopup        = _popup,
             ContextMenu      = BuildContextMenu()
         };
+
+        // Set an initial green icon immediately — without this the tray icon is invisible
+        // until the first poll callback completes asynchronously.
+        SetIcon(Color.FromArgb(166, 227, 161));
 
         TrayPopup.SettingsRequested += (_, _) => OpenSettings();
 
