@@ -62,4 +62,37 @@ public class AlertServiceTests
         svc.Check(S(10, DateTime.Now.AddDays(1)), S(85, DateTime.Now.AddDays(7)), Thresholds(80));
         fired.Should().ContainSingle(t => t.Contains("Weekly") && t.Contains("80%"));
     }
+
+    [Fact]
+    public void Check_FiresToast_WhenPercentageExactlyEqualsThreshold()
+    {
+        var fired = new List<string>();
+        var svc = new AlertService((title, _) => fired.Add(title));
+        svc.Check(S(80, DateTime.Now.AddDays(1)), S(10, DateTime.Now.AddDays(7)), Thresholds(80));
+        fired.Should().ContainSingle(t => t.Contains("Daily") && t.Contains("80%"));
+    }
+
+    [Fact]
+    public void Check_FiresMultipleThresholds_WhenAllCrossed()
+    {
+        var fired = new List<string>();
+        var svc = new AlertService((title, _) => fired.Add(title));
+        svc.Check(S(96, DateTime.Now.AddDays(1)), S(10, DateTime.Now.AddDays(7)), Thresholds(80, 90, 95));
+        fired.Should().HaveCount(3);
+        fired.Should().Contain(t => t.Contains("80%"));
+        fired.Should().Contain(t => t.Contains("90%"));
+        fired.Should().Contain(t => t.Contains("95%"));
+    }
+
+    [Fact]
+    public void Check_FiresAgain_AfterWeeklyWindowReset()
+    {
+        var fired = new List<string>();
+        var svc = new AlertService((title, _) => fired.Add(title));
+        svc.Check(S(10, DateTime.Now.AddDays(1)), S(85, DateTime.Now.AddDays(7)), Thresholds(80));
+        // New weekly window: resetsAt has advanced
+        svc.Check(S(10, DateTime.Now.AddDays(1)), S(85, DateTime.Now.AddDays(14)), Thresholds(80));
+        fired.Should().HaveCount(2);
+        fired.Should().AllSatisfy(t => t.Contains("Weekly"));
+    }
 }
