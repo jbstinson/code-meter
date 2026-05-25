@@ -10,7 +10,7 @@ public class UsageAggregator
         var end = start.AddDays(1);
         var used = entries.Where(e => e.Timestamp >= start && e.Timestamp < end).Sum(e => e.CostUSD);
         var pct = settings.DailyLimitUSD > 0
-            ? Math.Min(100.0, (double)(used / settings.DailyLimitUSD) * 100.0)
+            ? Math.Min(100.0, (double)used / (double)settings.DailyLimitUSD * 100.0)
             : 0.0;
         return new WindowSummary(used, settings.DailyLimitUSD, pct, end);
     }
@@ -21,7 +21,7 @@ public class UsageAggregator
         var end = start.AddDays(7);
         var used = entries.Where(e => e.Timestamp >= start && e.Timestamp < end).Sum(e => e.CostUSD);
         var pct = settings.WeeklyLimitUSD > 0
-            ? Math.Min(100.0, (double)(used / settings.WeeklyLimitUSD) * 100.0)
+            ? Math.Min(100.0, (double)used / (double)settings.WeeklyLimitUSD * 100.0)
             : 0.0;
         return new WindowSummary(used, settings.WeeklyLimitUSD, pct, end);
     }

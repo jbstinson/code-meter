@@ -96,4 +96,39 @@ public class UsageAggregatorTests
         // Window started Monday 2026-05-25 00:00, resets Monday 2026-06-01 00:00
         summary.ResetsAt.Should().Be(new DateTime(2026, 6, 1, 0, 0, 0));
     }
+
+    [Fact]
+    public void ComputeDaily_IncludesEntryExactlyAtWindowStart()
+    {
+        var now = new DateTime(2026, 5, 25, 14, 0, 0);
+        var windowStart = new DateTime(2026, 5, 25, 0, 0, 0); // DailyResetHour=0
+        var entries = new[] { E(windowStart, 1.00m) };
+
+        var summary = new UsageAggregator().ComputeDaily(entries, DefaultSettings(), now);
+
+        summary.AmountUsed.Should().Be(1.00m);
+    }
+
+    [Fact]
+    public void ComputeDaily_ExcludesEntryExactlyAtWindowEnd()
+    {
+        var now = new DateTime(2026, 5, 25, 14, 0, 0);
+        var windowEnd = new DateTime(2026, 5, 26, 0, 0, 0); // start + 1 day
+        var entries = new[] { E(windowEnd, 1.00m) };
+
+        var summary = new UsageAggregator().ComputeDaily(entries, DefaultSettings(), now);
+
+        summary.AmountUsed.Should().Be(0m);
+    }
+
+    [Fact]
+    public void ComputeDaily_PercentUsed_CapsAt100WhenOverLimit()
+    {
+        var now = new DateTime(2026, 5, 25, 14, 0, 0);
+        var entries = new[] { E(new DateTime(2026, 5, 25, 8, 0, 0), 10.00m) }; // over $5 limit
+
+        var summary = new UsageAggregator().ComputeDaily(entries, DefaultSettings(), now);
+
+        summary.PercentUsed.Should().Be(100.0);
+    }
 }
