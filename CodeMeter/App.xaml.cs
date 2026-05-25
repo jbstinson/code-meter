@@ -59,17 +59,13 @@ public partial class App : Application
         _popup     = new TrayPopup { DataContext = _vm };
         _alerts    = new AlertService(ShowToast);
 
-        _tray = new TaskbarIcon
-        {
-            ToolTipText      = "Claude Code Usage",
-            PopupActivation  = PopupActivationMode.LeftClick,
-            MenuActivation   = PopupActivationMode.RightClick,
-            TrayPopup        = _popup,
-            ContextMenu      = BuildContextMenu()
-        };
+        // Retrieve the TaskbarIcon from App.xaml resources — it must live there so that
+        // WPF fires its Loaded event and H.NotifyIcon registers with the Windows taskbar.
+        _tray = (TaskbarIcon)FindResource("TrayIcon");
+        _tray.TrayPopup   = _popup;
+        _tray.ContextMenu = BuildContextMenu();
 
-        // Set an initial green icon immediately — without this the tray icon is invisible
-        // until the first poll callback completes asynchronously.
+        // Set an initial green icon immediately so the tray circle is visible at once.
         SetIcon(Color.FromArgb(166, 227, 161));
 
         TrayPopup.SettingsRequested += (_, _) => OpenSettings();
