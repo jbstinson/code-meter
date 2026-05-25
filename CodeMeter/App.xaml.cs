@@ -24,6 +24,7 @@ public partial class App : Application
     private AlertService? _alerts;
     private DispatcherTimer? _pulseTimer;
     private bool _pulseOn;
+    private IntPtr _lastIconHandle = IntPtr.Zero;
 
     private static string SettingsPath =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -117,7 +118,11 @@ public partial class App : Application
         g.Clear(Color.Transparent);
         using var brush = new SolidBrush(color);
         g.FillEllipse(brush, 1, 1, 14, 14);
-        _tray!.Icon = Icon.FromHandle(bmp.GetHicon());
+        var hIcon = bmp.GetHicon();
+        _tray!.Icon = Icon.FromHandle(hIcon);
+        if (_lastIconHandle != IntPtr.Zero)
+            DestroyIcon(_lastIconHandle);
+        _lastIconHandle = hIcon;
     }
 
     private System.Windows.Controls.ContextMenu BuildContextMenu()
@@ -163,6 +168,11 @@ public partial class App : Application
         StopPulse();
         _poller?.Dispose();
         _tray?.Dispose();
+        if (_lastIconHandle != IntPtr.Zero)
+            DestroyIcon(_lastIconHandle);
         base.OnExit(e);
     }
+
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool DestroyIcon(IntPtr hIcon);
 }
