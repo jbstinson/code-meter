@@ -46,7 +46,7 @@
                    Foreground="#F38BA8" FontSize="18" FontWeight="Bold"/>
       </Grid>
       <ProgressBar Style="{StaticResource GradientBar}"
-                   Value="{Binding DailyPercent}" Margin="0,0,0,4"/>
+                   Value="{Binding DailyPercent, Mode=OneWay}" Margin="0,0,0,4"/>
       <TextBlock Text="{Binding DailyResetText}"
                  Foreground="#585B70" FontSize="10" Margin="0,0,0,14"/>
 
@@ -62,7 +62,7 @@
                    Foreground="#A6E3A1" FontSize="18" FontWeight="Bold"/>
       </Grid>
       <ProgressBar Style="{StaticResource GradientBar}"
-                   Value="{Binding WeeklyPercent}" Margin="0,0,0,4"/>
+                   Value="{Binding WeeklyPercent, Mode=OneWay}" Margin="0,0,0,4"/>
       <TextBlock Text="{Binding WeeklyResetText}"
                  Foreground="#585B70" FontSize="10" Margin="0,0,0,14"/>
 
