@@ -7,8 +7,6 @@ public partial class TrayPopup : UserControl
 {
     public static event EventHandler? SettingsRequested;
 
-    private DateTime _lastUpdated = DateTime.Now;
-
     public TrayPopup()
     {
         InitializeComponent();
@@ -16,7 +14,6 @@ public partial class TrayPopup : UserControl
 
     public void MarkUpdated()
     {
-        _lastUpdated = DateTime.Now;
         LastUpdatedText.Text = "Updated just now";
     }
 
