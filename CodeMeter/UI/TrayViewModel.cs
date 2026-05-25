@@ -14,14 +14,73 @@ public class TrayViewModel : INotifyPropertyChanged
     private string _dailyResetText = "";
     private string _weeklyResetText = "";
     private string _tooltipText = "Claude Code Usage";
-    private Color _iconColor = Color.FromArgb(166, 227, 161);
+    private Color _iconColor = Color.FromArgb(166, 227, 161); // GDI+ color for tray icon bitmap
 
-    public double DailyPercent  { get => _dailyPercent;  private set { _dailyPercent = value;  Notify(); } }
-    public double WeeklyPercent { get => _weeklyPercent; private set { _weeklyPercent = value; Notify(); } }
-    public string DailyResetText  { get => _dailyResetText;  private set { _dailyResetText = value;  Notify(); } }
-    public string WeeklyResetText { get => _weeklyResetText; private set { _weeklyResetText = value; Notify(); } }
-    public string TooltipText { get => _tooltipText; private set { _tooltipText = value; Notify(); } }
-    public Color IconColor    { get => _iconColor;   private set { _iconColor = value;   Notify(); } }
+    public double DailyPercent
+    {
+        get => _dailyPercent;
+        private set
+        {
+            if (_dailyPercent == value) return;
+            _dailyPercent = value;
+            Notify();
+        }
+    }
+
+    public double WeeklyPercent
+    {
+        get => _weeklyPercent;
+        private set
+        {
+            if (_weeklyPercent == value) return;
+            _weeklyPercent = value;
+            Notify();
+        }
+    }
+
+    public string DailyResetText
+    {
+        get => _dailyResetText;
+        private set
+        {
+            if (_dailyResetText == value) return;
+            _dailyResetText = value;
+            Notify();
+        }
+    }
+
+    public string WeeklyResetText
+    {
+        get => _weeklyResetText;
+        private set
+        {
+            if (_weeklyResetText == value) return;
+            _weeklyResetText = value;
+            Notify();
+        }
+    }
+
+    public string TooltipText
+    {
+        get => _tooltipText;
+        private set
+        {
+            if (_tooltipText == value) return;
+            _tooltipText = value;
+            Notify();
+        }
+    }
+
+    public Color IconColor // System.Drawing.Color — intentional, used for GDI+ icon rendering
+    {
+        get => _iconColor;
+        private set
+        {
+            if (_iconColor == value) return;
+            _iconColor = value;
+            Notify();
+        }
+    }
 
     public void Update(WindowSummary daily, WindowSummary weekly)
     {
