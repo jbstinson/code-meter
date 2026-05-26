@@ -26,34 +26,29 @@ public class TrayViewModelTests
     }
 
     [Fact]
-    public void Update_RaisesPropertyChanged_ForAllSixProperties()
+    public void Update_RaisesPropertyChanged_ForAllFourProperties()
     {
-        var vm = new TrayViewModel();
+        var vm     = new TrayViewModel();
         var raised = new List<string?>();
         vm.PropertyChanged += (_, e) => raised.Add(e.PropertyName);
 
-        // Use 75% daily so IconColor changes from the green default
-        var daily = new WindowSummary(3m, 4m, 75.0, DateTime.Now.AddDays(1));
-        var weekly = new WindowSummary(5m, 35m, 14.0, DateTime.Now.AddDays(7));
-        vm.Update(daily, weekly);
+        var fiveHour = new WindowSummary(3m, 22m, 75.0, DateTime.UtcNow.AddHours(2));
+        vm.Update(fiveHour);
 
-        raised.Should().Contain(nameof(TrayViewModel.DailyPercent));
-        raised.Should().Contain(nameof(TrayViewModel.WeeklyPercent));
-        raised.Should().Contain(nameof(TrayViewModel.DailyResetText));
-        raised.Should().Contain(nameof(TrayViewModel.WeeklyResetText));
+        raised.Should().Contain(nameof(TrayViewModel.FiveHourPercent));
+        raised.Should().Contain(nameof(TrayViewModel.FiveHourResetText));
         raised.Should().Contain(nameof(TrayViewModel.TooltipText));
         raised.Should().Contain(nameof(TrayViewModel.IconColor));
     }
 
     [Fact]
-    public void Update_SetsTooltipText_WithBothPercentages()
+    public void Update_SetsTooltipText_WithFiveHourPercentage()
     {
-        var vm = new TrayViewModel();
-        var daily = new WindowSummary(1m, 5m, 20.0, DateTime.Now.AddDays(1));
-        var weekly = new WindowSummary(5m, 35m, 14.0, DateTime.Now.AddDays(7));
-        vm.Update(daily, weekly);
+        var vm       = new TrayViewModel();
+        var fiveHour = new WindowSummary(1m, 22m, 20.0, DateTime.UtcNow.AddHours(3));
+        vm.Update(fiveHour);
 
-        vm.TooltipText.Should().Be("Daily: 20% · Weekly: 14%");
+        vm.TooltipText.Should().Be("5h: 20%");
     }
 
     [Fact]
@@ -66,17 +61,30 @@ public class TrayViewModelTests
     }
 
     [Fact]
-    public void Update_IconColor_ReflectsWorstPercentage()
+    public void Update_IconColor_ReflectsFiveHourPercentage()
     {
-        var vm = new TrayViewModel();
-        // Daily = 20% (green), Weekly = 95% (red)
-        var daily = new WindowSummary(1m, 5m, 20.0, DateTime.Now.AddDays(1));
-        var weekly = new WindowSummary(33m, 35m, 95.0, DateTime.Now.AddDays(7));
-        vm.Update(daily, weekly);
+        var vm       = new TrayViewModel();
+        var fiveHour = new WindowSummary(20m, 22m, 95.0, DateTime.UtcNow.AddHours(1));
+        vm.Update(fiveHour);
 
-        // Should be red (243, 139, 168) because weekly is 95%
+        // Red because 5-hour is 95%
         vm.IconColor.R.Should().Be(243);
         vm.IconColor.G.Should().Be(139);
         vm.IconColor.B.Should().Be(168);
+    }
+
+    [Fact]
+    public void FormatFiveHourReset_ReturnsNoActivity_WhenMinValue()
+    {
+        var text = TrayViewModel.FormatFiveHourReset(DateTime.MinValue);
+        text.Should().Be("No activity in window");
+    }
+
+    [Fact]
+    public void FormatFiveHourReset_ReturnsCountdown_WhenActiveUsage()
+    {
+        var resetsAt = DateTime.UtcNow.AddHours(3).AddMinutes(30);
+        var text     = TrayViewModel.FormatFiveHourReset(resetsAt);
+        text.Should().StartWith("Resets in 3h");
     }
 }

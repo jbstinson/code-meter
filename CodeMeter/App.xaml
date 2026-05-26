@@ -8,7 +8,6 @@
          H.NotifyIcon registers the icon with the Windows taskbar notification API. -->
     <tb:TaskbarIcon x:Key="TrayIcon"
                     ToolTipText="Claude Code Usage"
-                    PopupActivation="LeftClick"
                     MenuActivation="RightClick"/>
   </Application.Resources>
 </Application>

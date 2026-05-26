@@ -13,18 +13,10 @@ public partial class SettingsWindow : Window
     {
         InitializeComponent();
         _store = store;
-        PopulateHours(DailyResetHourBox);
-        PopulateHours(WeeklyResetHourBox);
-        foreach (var day in Enum.GetValues<DayOfWeek>())
-            WeeklyResetDayBox.Items.Add(day.ToString());
 
         var s = store.Load();
-        DailyLimitBox.Text = s.DailyLimitUSD.ToString("F2");
-        WeeklyLimitBox.Text = s.WeeklyLimitUSD.ToString("F2");
         PollIntervalBox.Text = s.PollIntervalSeconds.ToString();
-        DailyResetHourBox.SelectedIndex = s.DailyResetHour;
-        WeeklyResetHourBox.SelectedIndex = s.WeeklyResetHour;
-        WeeklyResetDayBox.SelectedIndex = (int)s.WeeklyResetDay;
+        TokenBudgetBox.Text  = s.FiveHourTokenBudget.ToString();
         foreach (var t in s.AlertThresholds)
             AddThresholdRow(t);
     }
@@ -37,16 +29,16 @@ public partial class SettingsWindow : Window
 
         var box = new TextBox
         {
-            Text = value.ToString(),
-            Background = Brushes.Transparent,
+            Text            = value.ToString(),
+            Background      = Brushes.Transparent,
             BorderThickness = new Thickness(0),
-            Foreground = new SolidColorBrush(Color.FromRgb(205, 214, 244))
+            Foreground      = new SolidColorBrush(Color.FromRgb(205, 214, 244))
         };
         var btn = new Button
         {
             Content = "✕",
             Padding = new Thickness(4, 0, 4, 0),
-            Margin = new Thickness(4, 0, 0, 0)
+            Margin  = new Thickness(4, 0, 0, 0)
         };
         btn.Click += (_, _) => ThresholdsPanel.Children.Remove(row);
 
@@ -60,12 +52,11 @@ public partial class SettingsWindow : Window
 
     private void Save_Click(object sender, RoutedEventArgs e)
     {
-        if (!decimal.TryParse(DailyLimitBox.Text, out var daily) || daily <= 0)
-            { Err("Daily limit must be a positive number."); return; }
-        if (!decimal.TryParse(WeeklyLimitBox.Text, out var weekly) || weekly <= 0)
-            { Err("Weekly limit must be a positive number."); return; }
         if (!int.TryParse(PollIntervalBox.Text, out var poll) || poll < 10)
             { Err("Poll interval must be at least 10 seconds."); return; }
+
+        if (!decimal.TryParse(TokenBudgetBox.Text, out var budget) || budget <= 0)
+            { Err("Token budget must be a positive number."); return; }
 
         var thresholds = new List<int>();
         foreach (Grid row in ThresholdsPanel.Children)
@@ -78,13 +69,9 @@ public partial class SettingsWindow : Window
 
         _store.Save(new AppSettings
         {
-            DailyLimitUSD     = daily,
-            WeeklyLimitUSD    = weekly,
-            DailyResetHour    = DailyResetHourBox.SelectedIndex,
-            WeeklyResetHour   = WeeklyResetHourBox.SelectedIndex,
-            WeeklyResetDay    = (DayOfWeek)WeeklyResetDayBox.SelectedIndex,
             PollIntervalSeconds = poll,
-            AlertThresholds   = thresholds.Distinct().OrderBy(t => t).ToList()
+            FiveHourTokenBudget = budget,
+            AlertThresholds     = thresholds.Distinct().OrderBy(t => t).ToList()
         });
 
         DialogResult = true;
@@ -96,9 +83,4 @@ public partial class SettingsWindow : Window
     private void Err(string msg) =>
         MessageBox.Show(msg, "Validation", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-    private static void PopulateHours(ComboBox cb)
-    {
-        for (int h = 0; h < 24; h++)
-            cb.Items.Add($"{h:D2}:00");
-    }
 }

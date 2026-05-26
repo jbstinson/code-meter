@@ -17,13 +17,14 @@ public partial class App : Application
 {
     private TaskbarIcon? _tray;
     private TrayViewModel? _vm;
-    private TrayPopup? _popup;
+    private UsageWindow? _usageWindow;
     private PollingService? _poller;
     private Func<Task>? _pollCallback;
     private SettingsStore? _store;
     private AlertService? _alerts;
     private DispatcherTimer? _pulseTimer;
     private bool _pulseOn;
+    private bool _windowPositioned;
     private IntPtr _lastIconHandle = IntPtr.Zero;
 
     private static string SettingsPath =>
@@ -55,40 +56,65 @@ public partial class App : Application
 
         var reader = new UsageReader();
         var agg    = new UsageAggregator();
-        _vm        = new TrayViewModel();
-        _popup     = new TrayPopup { DataContext = _vm };
-        _alerts    = new AlertService(ShowToast);
+        _vm           = new TrayViewModel();
+        _usageWindow  = new UsageWindow { DataContext = _vm };
+        _alerts       = new AlertService(ShowToast);
 
         // Retrieve the TaskbarIcon from App.xaml resources — it must live there so that
         // WPF fires its Loaded event and H.NotifyIcon registers with the Windows taskbar.
         _tray = (TaskbarIcon)FindResource("TrayIcon");
-        _tray.TrayPopup   = _popup;
         _tray.ContextMenu = BuildContextMenu();
 
         // Set an initial green icon immediately so the tray circle is visible at once.
         SetIcon(Color.FromArgb(166, 227, 161));
 
-        TrayPopup.SettingsRequested += (_, _) => OpenSettings();
+        // Force H.NotifyIcon to register with the Windows notification area.
+        // Without this, the icon may not appear if the Loaded event didn't fire.
+        _tray.ForceCreate();
+
+        // Double-click tray icon → toggle the draggable usage window.
+        _tray.TrayMouseDoubleClick += (_, _) => ToggleUsageWindow();
+
+        _usageWindow.SettingsRequested += (_, _) => OpenSettings();
 
         _pollCallback = async () =>
         {
-            var settings = _store.Load();
-            var entries  = reader.ReadAll(ClaudeDir).ToList();
-            var now      = DateTime.Now;
-            var daily    = agg.ComputeDaily(entries, settings, now);
-            var weekly   = agg.ComputeWeekly(entries, settings, now);
+            var settings  = _store.Load();
+            var entries   = reader.ReadAll(ClaudeDir).ToList();
+            var fiveHour  = agg.ComputeFiveHour(entries, settings, DateTime.UtcNow);
 
             await Dispatcher.InvokeAsync(() =>
             {
-                _vm.Update(daily, weekly);
-                _popup.MarkUpdated();
+                _vm.Update(fiveHour);
+                _usageWindow!.MarkUpdated();
                 RefreshIcon(_vm.IconColor);
-                _alerts.Check(daily, weekly, settings);
+                _alerts.Check(fiveHour, settings);
             });
         };
 
         var settings = _store.Load();
         _poller = new PollingService(settings.PollIntervalSeconds, _pollCallback);
+    }
+
+    private void ToggleUsageWindow()
+    {
+        if (_usageWindow!.IsVisible)
+        {
+            _usageWindow.Hide();
+            return;
+        }
+
+        _usageWindow.Show();
+        _usageWindow.Activate();
+
+        // On first open, snap to the bottom-right corner near the system tray.
+        if (!_windowPositioned)
+        {
+            _windowPositioned = true;
+            var area = SystemParameters.WorkArea;
+            _usageWindow.Left = area.Right  - _usageWindow.ActualWidth  - 12;
+            _usageWindow.Top  = area.Bottom - _usageWindow.ActualHeight - 12;
+        }
     }
 
     private void RefreshIcon(Color color)
@@ -177,6 +203,7 @@ public partial class App : Application
     {
         StopPulse();
         _poller?.Dispose();
+        _usageWindow?.ForceClose();
         _tray?.Dispose();
         if (_lastIconHandle != IntPtr.Zero)
             DestroyIcon(_lastIconHandle);

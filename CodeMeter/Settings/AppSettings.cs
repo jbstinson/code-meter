@@ -2,11 +2,13 @@ namespace CodeMeter.Settings;
 
 public class AppSettings
 {
-    public decimal DailyLimitUSD { get; set; } = 5.00m;
-    public decimal WeeklyLimitUSD { get; set; } = 35.00m;
-    public int DailyResetHour { get; set; } = 0;
-    public DayOfWeek WeeklyResetDay { get; set; } = DayOfWeek.Monday;
-    public int WeeklyResetHour { get; set; } = 0;
     public List<int> AlertThresholds { get; set; } = [60, 80, 95];
     public int PollIntervalSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// 5-hour rolling window capacity expressed as output-token-equivalents
+    /// (Sonnet output token = 1.0 unit).  Default 1 466 667 corresponds to the
+    /// empirically-observed Claude Code Pro/Max session limit.
+    /// </summary>
+    public decimal FiveHourTokenBudget { get; set; } = 1_466_667m;
 }

@@ -9,87 +9,41 @@ public class TrayViewModel : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
-    private double _dailyPercent;
-    private double _weeklyPercent;
-    private string _dailyResetText = "";
-    private string _weeklyResetText = "";
-    private string _tooltipText = "Claude Code Usage";
-    private Color _iconColor = Color.FromArgb(166, 227, 161); // GDI+ color for tray icon bitmap
+    private double _fiveHourPercent;
+    private string _fiveHourResetText = "";
+    private string _tooltipText       = "Claude Code Usage";
+    private Color  _iconColor         = Color.FromArgb(166, 227, 161);
 
-    public double DailyPercent
+    public double FiveHourPercent
     {
-        get => _dailyPercent;
-        private set
-        {
-            if (_dailyPercent == value) return;
-            _dailyPercent = value;
-            Notify();
-        }
+        get => _fiveHourPercent;
+        private set { if (_fiveHourPercent == value) return; _fiveHourPercent = value; Notify(); }
     }
 
-    public double WeeklyPercent
+    public string FiveHourResetText
     {
-        get => _weeklyPercent;
-        private set
-        {
-            if (_weeklyPercent == value) return;
-            _weeklyPercent = value;
-            Notify();
-        }
-    }
-
-    public string DailyResetText
-    {
-        get => _dailyResetText;
-        private set
-        {
-            if (_dailyResetText == value) return;
-            _dailyResetText = value;
-            Notify();
-        }
-    }
-
-    public string WeeklyResetText
-    {
-        get => _weeklyResetText;
-        private set
-        {
-            if (_weeklyResetText == value) return;
-            _weeklyResetText = value;
-            Notify();
-        }
+        get => _fiveHourResetText;
+        private set { if (_fiveHourResetText == value) return; _fiveHourResetText = value; Notify(); }
     }
 
     public string TooltipText
     {
         get => _tooltipText;
-        private set
-        {
-            if (_tooltipText == value) return;
-            _tooltipText = value;
-            Notify();
-        }
+        private set { if (_tooltipText == value) return; _tooltipText = value; Notify(); }
     }
 
-    public Color IconColor // System.Drawing.Color — intentional, used for GDI+ icon rendering
+    public Color IconColor
     {
         get => _iconColor;
-        private set
-        {
-            if (_iconColor == value) return;
-            _iconColor = value;
-            Notify();
-        }
+        private set { if (_iconColor == value) return; _iconColor = value; Notify(); }
     }
 
-    public void Update(WindowSummary daily, WindowSummary weekly)
+    public void Update(WindowSummary fiveHour)
     {
-        DailyPercent    = daily.PercentUsed;
-        WeeklyPercent   = weekly.PercentUsed;
-        DailyResetText  = FormatReset(daily.ResetsAt);
-        WeeklyResetText = FormatReset(weekly.ResetsAt);
-        TooltipText     = $"Daily: {daily.PercentUsed:F0}% · Weekly: {weekly.PercentUsed:F0}%";
-        IconColor       = ResolveIconColor(Math.Max(daily.PercentUsed, weekly.PercentUsed));
+        FiveHourPercent   = fiveHour.PercentUsed;
+        FiveHourResetText = FormatFiveHourReset(fiveHour.ResetsAt);
+        TooltipText       = $"5h: {fiveHour.PercentUsed:F0}%";
+        IconColor         = ResolveIconColor(fiveHour.PercentUsed);
     }
 
     internal static Color ResolveIconColor(double worst) => worst switch
@@ -100,12 +54,21 @@ public class TrayViewModel : INotifyPropertyChanged
         _      => Color.FromArgb(166, 227, 161)
     };
 
-    private static string FormatReset(DateTime resetsAt)
+    /// <summary>
+    /// Returns a countdown string for the rolling 5-hour window, e.g. "Resets in 3h 42m".
+    /// </summary>
+    internal static string FormatFiveHourReset(DateTime resetsAt)
     {
-        var local = resetsAt.Kind == DateTimeKind.Utc ? resetsAt.ToLocalTime() : resetsAt;
-        return local.Date == DateTime.Today
-            ? $"Resets at {local:h:mm tt}"
-            : $"Resets {local:dddd}";
+        if (resetsAt == DateTime.MinValue)
+            return "No activity in window";
+
+        var remaining = resetsAt.ToUniversalTime() - DateTime.UtcNow;
+        if (remaining <= TimeSpan.Zero)
+            return "Window clearing";
+
+        var h = (int)remaining.TotalHours;
+        var m = remaining.Minutes;
+        return h > 0 ? $"Resets in {h}h {m}m" : $"Resets in {m}m";
     }
 
     private void Notify([CallerMemberName] string? name = null)

@@ -15,21 +15,19 @@ public class SettingsStoreTests : IDisposable
     public void Load_ReturnsDefaults_WhenFileDoesNotExist()
     {
         var store = new SettingsStore(Path.Combine(_dir, "settings.json"));
-        var s = store.Load();
-        s.DailyLimitUSD.Should().Be(5.00m);
-        s.WeeklyLimitUSD.Should().Be(35.00m);
+        var s     = store.Load();
         s.AlertThresholds.Should().BeEquivalentTo(new[] { 60, 80, 95 });
         s.PollIntervalSeconds.Should().Be(30);
+        s.FiveHourTokenBudget.Should().Be(1_466_667m);
     }
 
     [Fact]
     public void Save_ThenLoad_RoundTrips()
     {
         var store = new SettingsStore(Path.Combine(_dir, "settings.json"));
-        var s = new AppSettings { DailyLimitUSD = 10m, PollIntervalSeconds = 60 };
+        var s     = new AppSettings { PollIntervalSeconds = 60 };
         store.Save(s);
         var loaded = store.Load();
-        loaded.DailyLimitUSD.Should().Be(10m);
         loaded.PollIntervalSeconds.Should().Be(60);
     }
 
@@ -51,7 +49,7 @@ public class SettingsStoreTests : IDisposable
     [Fact]
     public void Save_WritesAtomically_NoPartialFile()
     {
-        var path = Path.Combine(_dir, "settings.json");
+        var path  = Path.Combine(_dir, "settings.json");
         var store = new SettingsStore(path);
         store.Save(new AppSettings());
         File.Exists(path + ".tmp").Should().BeFalse();

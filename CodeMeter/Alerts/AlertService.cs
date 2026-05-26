@@ -6,41 +6,41 @@ namespace CodeMeter.Alerts;
 public class AlertService
 {
     private readonly Action<string, string> _showToast;
-    private DateTime _lastDailyResetsAt;
-    private DateTime _lastWeeklyResetsAt;
-    private readonly HashSet<int> _firedDaily = [];
-    private readonly HashSet<int> _firedWeekly = [];
+    private readonly Func<DateTime> _clock;   // injectable for tests
 
-    public AlertService(Action<string, string> showToast)
+    // 5-hour window: keyed by threshold, value = UTC time the alert fired.
+    // Clears automatically after 5 hours so the alert can re-fire next window.
+    private readonly Dictionary<int, DateTime> _firedFiveHour = [];
+
+    public AlertService(Action<string, string> showToast, Func<DateTime>? clock = null)
     {
         ArgumentNullException.ThrowIfNull(showToast);
         _showToast = showToast;
+        _clock = clock ?? (() => DateTime.UtcNow);
     }
 
-    public void Check(WindowSummary daily, WindowSummary weekly, AppSettings settings)
+    public void Check(WindowSummary fiveHour, AppSettings settings)
     {
-        if (daily.ResetsAt != _lastDailyResetsAt)
-        {
-            _firedDaily.Clear();
-            _lastDailyResetsAt = daily.ResetsAt;
-        }
-        if (weekly.ResetsAt != _lastWeeklyResetsAt)
-        {
-            _firedWeekly.Clear();
-            _lastWeeklyResetsAt = weekly.ResetsAt;
-        }
+        var now = _clock();
+
+        // Expire 5-hour alerts that are older than the window length.
+        foreach (var key in _firedFiveHour.Keys.ToList())
+            if ((now - _firedFiveHour[key]).TotalHours >= 5)
+                _firedFiveHour.Remove(key);
 
         foreach (var threshold in settings.AlertThresholds.Distinct().OrderBy(t => t))
         {
-            if (daily.PercentUsed >= threshold && _firedDaily.Add(threshold))
-                _showToast(
-                    $"Claude Code — Daily limit at {threshold}%",
-                    $"Resets at {daily.ResetsAt.ToLocalTime():h:mm tt}"); // locale-intentional: user-facing tray app
-
-            if (weekly.PercentUsed >= threshold && _firedWeekly.Add(threshold))
-                _showToast(
-                    $"Claude Code — Weekly limit at {threshold}%",
-                    $"Resets {weekly.ResetsAt.ToLocalTime():dddd}"); // locale-intentional: user-facing tray app
+            if (fiveHour.PercentUsed >= threshold && !_firedFiveHour.ContainsKey(threshold))
+            {
+                _firedFiveHour[threshold] = now;
+                var remaining = fiveHour.ResetsAt != DateTime.MinValue
+                    ? fiveHour.ResetsAt.ToUniversalTime() - now
+                    : TimeSpan.Zero;
+                var body = remaining > TimeSpan.Zero
+                    ? $"Resets in {(int)remaining.TotalHours}h {remaining.Minutes}m"
+                    : "Window clearing now";
+                _showToast($"Claude Code — 5h limit at {threshold}%", body);
+            }
         }
     }
 }

@@ -1,3 +1,3 @@
 namespace CodeMeter.Core;
 
-public record UsageEntry(DateTime Timestamp, decimal CostUSD);
+public record UsageEntry(DateTime Timestamp, decimal WeightedTokens);

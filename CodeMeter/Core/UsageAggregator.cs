@@ -4,40 +4,56 @@ namespace CodeMeter.Core;
 
 public class UsageAggregator
 {
-    public WindowSummary ComputeDaily(IEnumerable<UsageEntry> entries, AppSettings settings, DateTime now)
+    // A gap of ≥30 minutes between consecutive entries signals a new usage "session".
+    // Claude Code resets its 5-hour timer at the first entry after such a gap.
+    private static readonly TimeSpan SessionGapThreshold = TimeSpan.FromMinutes(30);
+
+    /// <summary>
+    /// Sums usage within the rolling 5-hour window ending at <paramref name="now"/> (UTC).
+    /// <para><see cref="WindowSummary.ResetsAt"/> is 5 hours after the start of the
+    /// <em>current session burst</em> — defined as the first entry after the most recent
+    /// gap of ≥ 30 minutes within the window.  This matches Claude Code's "resets Xh"
+    /// display behaviour, which starts a fresh timer after inactivity.
+    /// Returns <see cref="DateTime.MinValue"/> when the window is empty.</para>
+    /// </summary>
+    public WindowSummary ComputeFiveHour(
+        IEnumerable<UsageEntry> entries, AppSettings settings, DateTime now)
     {
-        var start = GetDailyWindowStart(settings, now);
-        var end = start.AddDays(1);
-        var used = entries.Where(e => e.Timestamp >= start && e.Timestamp < end).Sum(e => e.CostUSD);
-        var pct = settings.DailyLimitUSD > 0
-            ? Math.Min(100.0, (double)used / (double)settings.DailyLimitUSD * 100.0)
-            : 0.0;
-        return new WindowSummary(used, settings.DailyLimitUSD, pct, end);
+        var windowStart = now.AddHours(-5);
+        var inWindow    = entries
+            .Where(e => e.Timestamp >= windowStart && e.Timestamp <= now)
+            .OrderBy(e => e.Timestamp)
+            .ToList();
+
+        var used   = inWindow.Sum(e => e.WeightedTokens);
+        var budget = settings.FiveHourTokenBudget;
+        var pct    = Math.Min(100.0, (double)used / (double)budget * 100.0);
+
+        var sessionStart = FindSessionStart(inWindow);
+        var resetsAt     = sessionStart.HasValue
+            ? sessionStart.Value.AddHours(5)
+            : DateTime.MinValue;
+
+        return new WindowSummary(used, budget, pct, resetsAt);
     }
 
-    public WindowSummary ComputeWeekly(IEnumerable<UsageEntry> entries, AppSettings settings, DateTime now)
+    /// <summary>
+    /// Returns the timestamp of the first entry in the most recent continuous burst.
+    /// Walks backwards through <paramref name="orderedEntries"/> to find the latest gap
+    /// ≥ <see cref="SessionGapThreshold"/>; the entry immediately after that gap is the
+    /// session start.  Falls back to the oldest entry if no qualifying gap exists.
+    /// </summary>
+    private static DateTime? FindSessionStart(List<UsageEntry> orderedEntries)
     {
-        var start = GetWeeklyWindowStart(settings, now);
-        var end = start.AddDays(7);
-        var used = entries.Where(e => e.Timestamp >= start && e.Timestamp < end).Sum(e => e.CostUSD);
-        var pct = settings.WeeklyLimitUSD > 0
-            ? Math.Min(100.0, (double)used / (double)settings.WeeklyLimitUSD * 100.0)
-            : 0.0;
-        return new WindowSummary(used, settings.WeeklyLimitUSD, pct, end);
-    }
+        if (orderedEntries.Count == 0) return null;
 
-    internal static DateTime GetDailyWindowStart(AppSettings settings, DateTime now)
-    {
-        var todayReset = new DateTime(now.Year, now.Month, now.Day, settings.DailyResetHour, 0, 0);
-        return now >= todayReset ? todayReset : todayReset.AddDays(-1);
-    }
+        for (int i = orderedEntries.Count - 1; i > 0; i--)
+        {
+            var gap = orderedEntries[i].Timestamp - orderedEntries[i - 1].Timestamp;
+            if (gap >= SessionGapThreshold)
+                return orderedEntries[i].Timestamp;
+        }
 
-    internal static DateTime GetWeeklyWindowStart(AppSettings settings, DateTime now)
-    {
-        var daysBack = ((int)now.DayOfWeek - (int)settings.WeeklyResetDay + 7) % 7;
-        var candidate = new DateTime(now.Year, now.Month, now.Day, settings.WeeklyResetHour, 0, 0)
-                            .AddDays(-daysBack);
-        if (candidate > now) candidate = candidate.AddDays(-7);
-        return candidate;
+        return orderedEntries[0].Timestamp;
     }
 }
