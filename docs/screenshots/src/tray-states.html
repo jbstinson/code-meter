@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #181825; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+  .card { background: #1e1e2e; border-radius: 10px; padding: 28px 36px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border: 1px solid #313244; }
+  h3 { color: #a6adc8; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; text-align: center; margin-bottom: 24px; }
+  .states { display: flex; gap: 28px; align-items: flex-end; }
+  .state { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .icon { width: 28px; height: 28px; border-radius: 50%; }
+  .green  { background: #a6e3a1; box-shadow: 0 0 10px rgba(166,227,161,0.5); }
+  .yellow { background: #f9e2af; box-shadow: 0 0 10px rgba(249,226,175,0.5); }
+  .red    { background: #f38ba8; box-shadow: 0 0 10px rgba(243,139,168,0.5); }
+  .darkred { background: #8b0000; box-shadow: 0 0 14px rgba(139,0,0,0.7); animation: pulse 1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; box-shadow: 0 0 14px rgba(139,0,0,0.7); } 50% { opacity:0.4; box-shadow: 0 0 4px rgba(139,0,0,0.3); } }
+  .range { color: #a6adc8; font-size: 11px; text-align: center; }
+  .band { color: #585b70; font-size: 10px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h3>5-Hour Window — Tray Icon States</h3>
+  <div class="states">
+    <div class="state">
+      <div class="icon green"></div>
+      <div class="range">0–60%</div>
+      <div class="band">Green</div>
+    </div>
+    <div class="state">
+      <div class="icon yellow"></div>
+      <div class="range">61–89%</div>
+      <div class="band">Yellow</div>
+    </div>
+    <div class="state">
+      <div class="icon red"></div>
+      <div class="range">90–99%</div>
+      <div class="band">Red</div>
+    </div>
+    <div class="state">
+      <div class="icon darkred"></div>
+      <div class="range">100%</div>
+      <div class="band">Pulsing</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

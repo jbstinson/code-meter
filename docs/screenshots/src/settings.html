@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #181825; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+  .window { background: #1e1e2e; border-radius: 6px; width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); border: 1px solid #313244; overflow: hidden; }
+  .titlebar { background: #181825; padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #313244; }
+  .title { color: #cdd6f4; font-size: 12px; font-weight: 500; }
+  .winbtns { display: flex; gap: 6px; }
+  .wb { width: 12px; height: 12px; border-radius: 50%; }
+  .wb.close { background: #f38ba8; }
+  .wb.min   { background: #f9e2af; }
+  .wb.max   { background: #a6e3a1; }
+  .content { padding: 16px; }
+  .section-header { color: #cdd6f4; font-size: 11px; font-weight: 600; margin: 0 0 8px 0; }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; color: #a6adc8; font-size: 10px; margin-bottom: 3px; }
+  .field input { width: 100%; background: #313244; border: 1px solid #45475a; border-radius: 3px; color: #cdd6f4; padding: 5px 8px; font-size: 11px; font-family: 'Segoe UI', sans-serif; }
+  .limits-section { margin-bottom: 16px; }
+  .thresholds-section { margin-bottom: 8px; }
+  .threshold-box { background: #313244; border-radius: 4px; padding: 8px; margin-bottom: 8px; max-height: 100px; overflow: hidden; }
+  .threshold-row { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+  .threshold-row:last-child { margin-bottom: 0; }
+  .threshold-row input { flex: 1; background: transparent; border: none; color: #cdd6f4; font-size: 11px; padding: 2px 0; font-family: 'Segoe UI', sans-serif; outline: none; }
+  .threshold-row .rm { color: #6c7086; font-size: 11px; cursor: pointer; padding: 0 4px; }
+  .add-btn { display: inline-block; background: #313244; border: 1px solid #45475a; color: #cdd6f4; font-size: 10px; padding: 4px 10px; border-radius: 3px; cursor: pointer; margin-bottom: 16px; }
+  .divider { border: none; border-top: 1px solid #45475a; margin: 0 0 12px; }
+  .footer-btns { display: flex; justify-content: flex-end; gap: 8px; }
+  .btn-cancel { background: #313244; border: 1px solid #45475a; color: #cdd6f4; font-size: 11px; padding: 5px 14px; border-radius: 3px; cursor: pointer; }
+  .btn-save { background: #89b4fa; border: 1px solid #89b4fa; color: #1e1e2e; font-size: 11px; font-weight: 700; padding: 5px 14px; border-radius: 3px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="titlebar">
+    <div class="winbtns">
+      <div class="wb close"></div>
+      <div class="wb min"></div>
+      <div class="wb max"></div>
+    </div>
+    <div class="title">Code Meter — Settings</div>
+    <div style="width:42px"></div>
+  </div>
+
+  <div class="content">
+    <div class="section-header">POLLING</div>
+    <div class="field" style="margin-bottom:16px">
+      <label>Poll interval (sec, min 10)</label>
+      <input value="30">
+    </div>
+
+    <div class="section-header">LIMITS</div>
+    <div class="field limits-section">
+      <label>5-hour token budget (output-token-equivalents)</label>
+      <input value="1466667">
+    </div>
+
+    <div class="section-header thresholds-section">ALERT THRESHOLDS (%)</div>
+    <div class="threshold-box">
+      <div class="threshold-row"><input value="60"><span class="rm">✕</span></div>
+      <div class="threshold-row"><input value="80"><span class="rm">✕</span></div>
+      <div class="threshold-row"><input value="95"><span class="rm">✕</span></div>
+    </div>
+    <div class="add-btn">+ Add Threshold</div>
+
+    <hr class="divider">
+    <div class="footer-btns">
+      <div class="btn-cancel">Cancel</div>
+      <div class="btn-save">Save</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

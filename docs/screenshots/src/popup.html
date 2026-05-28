@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #181825; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
+  .popup { background: #1e1e2e; border-radius: 10px; padding: 16px; width: 268px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+  .titlebar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .title { color: #cdd6f4; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+  .close { color: #585b70; font-size: 11px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+  .row-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+  .label { color: #a6adc8; font-size: 11px; }
+  .pct { color: #f38ba8; font-size: 18px; font-weight: 700; }
+  .track { background: #313244; border-radius: 6px; height: 12px; overflow: hidden; margin-bottom: 4px; }
+  .fill { height: 12px; border-radius: 6px; background: linear-gradient(90deg, #a6e3a1 0%, #f9e2af 60%, #f38ba8 100%); }
+  .reset { color: #585b70; font-size: 10px; margin-bottom: 14px; }
+  .sep { border: none; border-top: 1px solid #313244; margin-bottom: 10px; }
+  .footer { display: flex; justify-content: space-between; align-items: center; }
+  .updated { color: #585b70; font-size: 10px; }
+  .settings { color: #89b4fa; font-size: 10px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="popup">
+  <div class="titlebar">
+    <span class="title">Claude Code Usage</span>
+    <span class="close">✕</span>
+  </div>
+
+  <div class="row-header">
+    <span class="label">5-Hour</span>
+    <span class="pct">37%</span>
+  </div>
+  <div class="track"><div class="fill" style="width:37%"></div></div>
+  <div class="reset">Resets in 3 h 42 m</div>
+
+  <hr class="sep">
+  <div class="footer">
+    <span class="updated">Updated 12s ago</span>
+    <span class="settings">⚙ Settings</span>
+  </div>
+</div>
+</body>
+</html>
