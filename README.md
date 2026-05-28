@@ -2,7 +2,7 @@
 
 > A lightweight Windows system tray app that tracks your [Claude Code](https://claude.ai/code) subscription usage in real time — no API key required.
 
-![Claude Code Usage popup showing 5-hour usage at 37%](docs/screenshots/popup.png)
+![Claude Code Usage popup showing 5-hour usage at 37%](https://raw.githubusercontent.com/jbstinson/code-meter/trunk/docs/screenshots/popup.png)
 
 ---
 
@@ -35,25 +35,25 @@ Claude Code enforces a **5-hour rolling window** spending cap. Once you hit it, 
 
 Double-click the tray icon to see your current 5-hour usage at a glance.
 
-![Popup with gradient bar for 5-hour usage and reset countdown](docs/screenshots/popup.png)
+![Popup with gradient bar for 5-hour usage and reset countdown](https://raw.githubusercontent.com/jbstinson/code-meter/trunk/docs/screenshots/popup.png)
 
 ### Settings Window
 
 Right-click the tray icon → **Settings**, or click **⚙ Settings** in the popup.
 
-![Settings window showing token budget, poll interval, and alert thresholds](docs/screenshots/settings.png)
+![Settings window showing token budget, poll interval, and alert thresholds](https://raw.githubusercontent.com/jbstinson/code-meter/trunk/docs/screenshots/settings.png)
 
 ### Tray Icon States
 
 The tray icon color reflects your 5-hour window usage.
 
-![Four tray icon states: green 0-60%, yellow 61-89%, red 90-99%, pulsing dark red 100%](docs/screenshots/tray-states.png)
+![Four tray icon states: green 0-60%, yellow 61-89%, red 90-99%, pulsing dark red 100%](https://raw.githubusercontent.com/jbstinson/code-meter/trunk/docs/screenshots/tray-states.png)
 
 ### Toast Notifications
 
 Windows toast notifications fire once per threshold crossing per window period.
 
-![Toast notification showing Claude Code 5-hour limit at 80%](docs/screenshots/toast.png)
+![Toast notification showing Claude Code 5-hour limit at 80%](https://raw.githubusercontent.com/jbstinson/code-meter/trunk/docs/screenshots/toast.png)
 
 ---
 
