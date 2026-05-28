@@ -18,7 +18,7 @@
         <Setter.Value>
           <ControlTemplate TargetType="ProgressBar">
             <Grid>
-              <Border Background="#313244" CornerRadius="6"/>
+              <Border x:Name="PART_Track" Background="#313244" CornerRadius="6"/>
               <Border x:Name="PART_Indicator" HorizontalAlignment="Left" CornerRadius="6">
                 <Border.Background>
                   <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
